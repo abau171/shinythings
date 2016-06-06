@@ -5,6 +5,7 @@
 
 typedef struct {
     color_t color;
+    float specular, shininess;
 } surface_t;
 
 typedef struct {

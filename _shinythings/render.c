@@ -16,14 +16,13 @@ static vector_t camera_down = {0.0, -1.08, 0.0};
 
 static color_t ambient = {0.03, 0.03, 0.03};
 
-static sphere_model_t sphere_a = {{{0.0, 0.0, -1.0}, 0.5}, {{0.0, 0.4, 1.0}}};
-static plane_model_t plane_a = {{{0.0, -0.5, 0.0}, {0.0, 1.0, 0.0}}, {{1.0, 0.4, 0.0}}};
-static light_t light_a = {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}};
+static sphere_model_t sphere_a = {{{0.0, 0.0, -1.0}, 0.5}, {{0.0, 0.4, 1.0}, 0.3, 20.0}};
+static plane_model_t plane_a = {{{0.0, -0.5, 0.0}, {0.0, 1.0, 0.0}}, {{1.0, 0.4, 0.0}, 0.0, 1.0}};
+static light_t light_a = {{3.0, 3.0, 3.0}, {10.0, 10.0, 10.0}};
 
 static bool trace_ray_object(vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal, surface_t** surface)
 {
-    float direction_magnitude = vector_magnitude(ray_direction);
-    ray_start = vector_add(ray_start, vector_scale(ray_direction, 0.01 / direction_magnitude));
+    ray_start = vector_add(ray_start, vector_scale(ray_direction, 0.01));
 
     vector_t sphere_hit;
     bool sphere_success = sphere_intersect(sphere_a.sphere, camera, ray_direction, &sphere_hit);
@@ -46,22 +45,33 @@ static bool trace_ray_object(vector_t ray_start, vector_t ray_direction, vector_
     return false;
 }
 
+static color_t get_specular_color(vector_t hit, vector_t normal, vector_t incoming, surface_t* surface)
+{
+    vector_t to_light = vector_normalize(vector_sub(light_a.position, hit));
+    vector_t light_reflection = vector_sub(
+        vector_scale(normal, 2 * vector_dot(to_light, normal)),
+        to_light);
+    float specular_scalar = surface->specular * powf(fmaxf(0.0, -vector_dot(incoming, light_reflection)), surface->shininess);
+    return color_scale(light_a.color, specular_scalar);
+}
+
 static color_t get_diffuse_color(vector_t hit, vector_t normal, surface_t* surface)
 {
     vector_t to_light = vector_sub(light_a.position, hit);
+    float light_distance_2 = vector_magnitude_2(to_light);
+    to_light = vector_normalize(to_light);
     vector_t obj_hit, obj_normal;
     surface_t* obj_surface;
     if (!trace_ray_object(hit, to_light, &obj_hit, &obj_normal, &obj_surface)) {
-        float distance_2 = vector_magnitude_2(to_light);
-        float diffuse_scalar = fmaxf(0.0, vector_dot(to_light, normal) / sqrtf(distance_2)) / distance_2;
-        return (color_t) {diffuse_scalar * light_a.color.r * surface->color.r, diffuse_scalar * light_a.color.g * surface->color.g, diffuse_scalar * light_a.color.b * surface->color.b};
+        float diffuse_scalar = fmaxf(0.0, vector_dot(to_light, normal)) / light_distance_2;
+        return color_scale(color_mult(light_a.color, surface->color), diffuse_scalar);
     }
     return (color_t) {0.0, 0.0, 0.0};
 }
 
 static color_t get_ambient_color(surface_t* surface)
 {
-    return (color_t) {ambient.r * surface->color.r, ambient.g * surface->color.g, ambient.b * surface->color.b};
+    return color_mult(ambient, surface->color);
 }
 
 static color_t trace_ray(vector_t ray_start, vector_t ray_direction)
@@ -70,17 +80,20 @@ static color_t trace_ray(vector_t ray_start, vector_t ray_direction)
     surface_t* obj_surface;
     bool obj_success = trace_ray_object(ray_start, ray_direction, &obj_hit, &obj_normal, &obj_surface);
     if (obj_success) {
-        return color_add(get_ambient_color(obj_surface),
-                         get_diffuse_color(obj_hit, obj_normal, obj_surface));
+        return color_add(color_add(get_ambient_color(obj_surface),
+                                   get_diffuse_color(obj_hit, obj_normal, obj_surface)),
+                                   get_specular_color(obj_hit, obj_normal, ray_direction, obj_surface));
     }
     return (color_t) {0.0, 0.0, 0.0};
 }
 
 static color_t get_screen_color(float x, float y)
 {
-    vector_t ray_direction = vector_add(camera_look,
-        vector_add(vector_scale(camera_right, x),
-                   vector_scale(camera_down, y)));
+    vector_t ray_direction = vector_normalize(
+        vector_add(vector_add(
+            camera_look,
+            vector_scale(camera_right, x)),
+            vector_scale(camera_down, y)));
 
     return trace_ray(camera, ray_direction);
 }
@@ -89,7 +102,7 @@ static color_t get_pixel(int width, int height, int px, int py)
 {
     float x = (px + 0.5) / width - 0.5;
     float y = (py + 0.5) / height - 0.5;
-    return get_screen_color(x, y);
+    return color_clamp(get_screen_color(x, y));
 }
 
 uint8_t* render(int width, int height)
