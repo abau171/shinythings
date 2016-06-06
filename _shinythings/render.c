@@ -25,7 +25,7 @@ static bool trace_ray_object(vector_t ray_start, vector_t ray_direction, vector_
     ray_start = vector_add(ray_start, vector_scale(ray_direction, 0.01));
 
     vector_t sphere_hit;
-    bool sphere_success = sphere_intersect(sphere_a.sphere, camera, ray_direction, &sphere_hit);
+    bool sphere_success = sphere_intersect(sphere_a.sphere, ray_start, ray_direction, &sphere_hit);
     if (sphere_success) {
         *hit = sphere_hit;
         *normal = vector_normalize(vector_sub(sphere_hit, sphere_a.sphere.center));
@@ -34,7 +34,7 @@ static bool trace_ray_object(vector_t ray_start, vector_t ray_direction, vector_
     }
 
     vector_t plane_hit;
-    bool plane_success = plane_intersect(plane_a.plane, camera, ray_direction, &plane_hit);
+    bool plane_success = plane_intersect(plane_a.plane, ray_start, ray_direction, &plane_hit);
     if (plane_success) {
         *hit = plane_hit;
         *normal = plane_a.plane.normal;
