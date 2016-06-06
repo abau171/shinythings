@@ -1,5 +1,5 @@
 import shinythings
 
-image = shinythings.render(1920, 1080)
+image = shinythings.render(960, 540)
 image.show()
 
