@@ -13,16 +13,26 @@ static vector_t camera_right = {1.92, 0.0, 0.0};
 static vector_t camera_down = {0.0, -1.08, 0.0};
 
 static sphere_t sphere_a = {{0.0, 0.0, -1.0}, 0.5};
+static plane_t plane_a = {{0.0, -0.5, 0.0}, {0.0, 1.0, 0.0}};
 
 static color_t get_screen_color(float x, float y)
 {
     vector_t ray_direction = vector_add(camera_look,
         vector_add(vector_scale(camera_right, x),
                    vector_scale(camera_down, y)));
+
     vector_t sphere_hit;
     bool sphere_success = sphere_intersect(sphere_a, camera, ray_direction, &sphere_hit);
     if (sphere_success) {
         return (color_t) {0.0, 0.4, 1.0};
+    }/* else {
+        return (color_t) {0.0, 0.0, 0.0};
+    }*/
+
+    vector_t plane_hit;
+    bool plane_success = plane_intersect(plane_a, camera, ray_direction, &plane_hit);
+    if (plane_success) {
+        return (color_t) {1.0, 0.4, 0.0};
     } else {
         return (color_t) {0.0, 0.0, 0.0};
     }

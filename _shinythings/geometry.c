@@ -66,7 +66,8 @@ float vector_dot(vector_t a, vector_t b)
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-bool sphere_intersect(sphere_t s, vector_t ray_start, vector_t ray_direction, vector_t* hit) {
+bool sphere_intersect(sphere_t s, vector_t ray_start, vector_t ray_direction, vector_t* hit)
+{
     float a = vector_magnitude_2(ray_direction);
     vector_t recentered = vector_sub(ray_start, s.center);
     float b = 2 * vector_dot(ray_direction, recentered);
@@ -84,6 +85,18 @@ bool sphere_intersect(sphere_t s, vector_t ray_start, vector_t ray_direction, ve
         t = fmaxf(t1, t2);
     }
     if (t <= 0.0)
+        return false;
+    *hit = vector_add(ray_start, vector_scale(ray_direction, t));
+    return true;
+}
+
+bool plane_intersect(plane_t p, vector_t ray_start, vector_t ray_direction, vector_t* hit)
+{
+    float denominator = vector_dot(p.normal, ray_direction);
+    if (denominator == 0)
+        return false;
+    float t = vector_dot(p.normal, vector_sub(p.point, ray_start)) / denominator;
+    if (t < 0.0)
         return false;
     *hit = vector_add(ray_start, vector_scale(ray_direction, t));
     return true;

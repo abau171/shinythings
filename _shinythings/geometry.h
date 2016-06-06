@@ -23,7 +23,14 @@ typedef struct {
     float radius;
 } sphere_t;
 
-bool sphere_intersect(sphere_t sphere, vector_t ray_start, vector_t ray_direction, vector_t* hit);
+bool sphere_intersect(sphere_t s, vector_t ray_start, vector_t ray_direction, vector_t* hit);
+
+typedef struct {
+    vector_t point;
+    vector_t normal;
+} plane_t;
+
+bool plane_intersect(plane_t p, vector_t ray_start, vector_t ray_direction, vector_t* hit);
 
 #endif
 
