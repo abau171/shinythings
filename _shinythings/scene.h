@@ -19,6 +19,7 @@ typedef struct {
 
 typedef struct {
     vector_t position;
+    color_t color;
 } light_t;
 
 #endif
