@@ -3,7 +3,8 @@ import numpy
 
 module = Extension("_shinythings",
                    sources=["_shinythings/_shinythings.c",
-                            "_shinythings/render.c"],
+                            "_shinythings/render.c",
+                            "_shinythings/color.c"],
                    include_dirs=[numpy.get_include(), "_shinythings/"],
                    extra_compile_args=["-O3"])
 

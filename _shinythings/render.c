@@ -1,11 +1,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "render.h"
+#include "color.h"
 
-typedef struct {
-    float r, g, b;
-} color_t;
+#include "render.h"
 
 color_t get_pixel(int width, int height, int px, int py)
 {
