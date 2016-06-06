@@ -14,9 +14,11 @@ static vector_t camera_look = {0.0, 0.0, -3.0};
 static vector_t camera_right = {1.92, 0.0, 0.0};
 static vector_t camera_down = {0.0, -1.08, 0.0};
 
+static color_t ambient = {0.03, 0.03, 0.03};
+
 static sphere_model_t sphere_a = {{{0.0, 0.0, -1.0}, 0.5}, {{0.0, 0.4, 1.0}}};
 static plane_model_t plane_a = {{{0.0, -0.5, 0.0}, {0.0, 1.0, 0.0}}, {{1.0, 0.4, 0.0}}};
-static light_t light_a = {{1.0, 1.0, 1.0}, {0.0, 1.0, 0.0}};
+static light_t light_a = {{1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}};
 
 static bool trace_ray_object(vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal, surface_t** surface)
 {
@@ -54,7 +56,12 @@ static color_t get_diffuse_color(vector_t hit, vector_t normal, surface_t* surfa
         float diffuse_scalar = fmaxf(0.0, vector_dot(to_light, normal) / sqrtf(distance_2)) / distance_2;
         return (color_t) {diffuse_scalar * light_a.color.r * surface->color.r, diffuse_scalar * light_a.color.g * surface->color.g, diffuse_scalar * light_a.color.b * surface->color.b};
     }
-    return (color_t) {0.0, 0.0, 0.0}; // AMBIENT
+    return (color_t) {0.0, 0.0, 0.0};
+}
+
+static color_t get_ambient_color(surface_t* surface)
+{
+    return (color_t) {ambient.r * surface->color.r, ambient.g * surface->color.g, ambient.b * surface->color.b};
 }
 
 static color_t trace_ray(vector_t ray_start, vector_t ray_direction)
@@ -63,9 +70,10 @@ static color_t trace_ray(vector_t ray_start, vector_t ray_direction)
     surface_t* obj_surface;
     bool obj_success = trace_ray_object(ray_start, ray_direction, &obj_hit, &obj_normal, &obj_surface);
     if (obj_success) {
-        return get_diffuse_color(obj_hit, obj_normal, obj_surface);
+        return color_add(get_ambient_color(obj_surface),
+                         get_diffuse_color(obj_hit, obj_normal, obj_surface));
     }
-    return (color_t) {0.0, 0.0, 0.0}; // BACKGROUND
+    return (color_t) {0.0, 0.0, 0.0};
 }
 
 static color_t get_screen_color(float x, float y)
