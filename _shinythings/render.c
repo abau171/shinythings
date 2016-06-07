@@ -46,7 +46,7 @@ static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_di
     for (int i = 0; i < scene->num_spheres; i++) {
         if (sphere_intersect(scene->spheres[i].sphere, ray_start, ray_direction, &sphere_hit)) {
             float distance_2 = vector_distance_2(ray_start, sphere_hit);
-            if (closest_distance_2 < 0 || distance_2 < closest_distance_2) {
+            if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
                 closest_hit = sphere_hit;
                 closest_normal = vector_normalize(vector_sub(sphere_hit, scene->spheres[i].sphere.center));
                 closest_surface = &scene->spheres[i].surface;
@@ -59,11 +59,31 @@ static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_di
     for (int i = 0; i < scene->num_planes; i++) {
         if (plane_intersect(scene->planes[i].plane, ray_start, ray_direction, &plane_hit)) {
             float distance_2 = vector_distance_2(ray_start, plane_hit);
-            if (closest_distance_2 < 0 || distance_2 < closest_distance_2) {
+            if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
                 closest_hit = plane_hit;
                 closest_normal = scene->planes[i].plane.normal;
                 closest_surface = &scene->planes[i].surface;
                 closest_distance_2 = distance_2;
+            }
+        }
+    }
+
+    vector_t model_hit;
+    for (int i = 0; i < scene->num_models; i++) {
+        tri_model_t* model = &scene->models[i];
+        for (int j = 0; j < model->num_triangles; j++) {
+            triangle_t* triangle = &model->triangles[j];
+            vector_t a = model->vertices[triangle->a];
+            vector_t b = model->vertices[triangle->b];
+            vector_t c = model->vertices[triangle->c];
+            if (triangle_intersect(a, b, c, ray_start, ray_direction, &model_hit)) {
+                float distance_2 = vector_distance_2(ray_start, model_hit);
+                if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
+                    closest_hit = model_hit;
+                    closest_normal = vector_normalize(vector_cross(vector_sub(b, a), vector_sub(c, a)));
+                    closest_surface = &model->surface;
+                    closest_distance_2 = distance_2;
+                }
             }
         }
     }

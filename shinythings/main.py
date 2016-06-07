@@ -16,6 +16,9 @@ class Scene():
     def add_light(self, *args):
         self._scene.add_light(*args)
 
+    def add_model(self, *args):
+        self._scene.add_model(*args)
+
     def render(self):
         return PIL.Image.fromarray(self._scene.render(), "RGB")
 

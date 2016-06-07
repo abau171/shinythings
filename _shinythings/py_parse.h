@@ -15,6 +15,7 @@ bool parse_surface(PyObject* py_surface, surface_t* s);
 bool parse_sphere_model(PyObject* py_sphere_model, sphere_model_t* sm);
 bool parse_plane_model(PyObject* py_plane_model, plane_model_t* sp);
 bool parse_light(PyObject* py_light, light_t* l);
+bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm);
 
 #endif
 

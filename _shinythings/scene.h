@@ -25,10 +25,22 @@ typedef struct {
 } light_t;
 
 typedef struct {
-    int num_spheres, num_planes, num_lights;
+    int a, b, c;
+} triangle_t;
+
+typedef struct {
+    int num_vertices, num_triangles;
+    vector_t* vertices;
+    triangle_t* triangles;
+    surface_t surface;
+} tri_model_t;
+
+typedef struct {
+    int num_spheres, num_planes, num_lights, num_models;
     sphere_model_t* spheres;
     plane_model_t* planes;
     light_t* lights;
+    tri_model_t* models;
 } scene_t;
 
 #endif

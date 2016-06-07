@@ -107,3 +107,43 @@ bool parse_light(PyObject* py_light, light_t* l)
     return true;
 }
 
+bool parse_triangle(PyObject* py_triangle, triangle_t* t)
+{
+    if (!PyArg_ParseTuple(py_triangle, "iii", &t->a, &t->b, &t->c))
+        return false;
+
+    return true;
+}
+
+bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
+{
+    PyObject* py_vertices;
+    PyObject* py_triangles;
+    PyObject* py_surface;
+    if (!PyArg_ParseTuple(py_tri_model, "OOO", &py_vertices, &py_triangles, &py_surface))
+        return false;
+
+    int num_vertices = PyList_Size(py_vertices);
+    tm->num_vertices = num_vertices;
+    vector_t* vertices = malloc(num_vertices * sizeof(vector_t));
+    for (int i = 0; i < num_vertices; i++) {
+        if (!parse_vector(PyList_GetItem(py_vertices, i), &vertices[i]))
+            return false;
+    }
+    tm->vertices = vertices;
+
+    int num_triangles = PyList_Size(py_triangles);
+    tm->num_triangles = num_triangles;
+    triangle_t* triangles = malloc(num_triangles * sizeof(triangle_t));
+    for (int i = 0; i < num_triangles; i++) {
+        if (!parse_triangle(PyList_GetItem(py_triangles, i), &triangles[i]))
+            return false;
+    }
+    tm->triangles = triangles;
+
+    if (!parse_surface(py_surface, &tm->surface))
+        return false;
+
+    return true;
+}
+

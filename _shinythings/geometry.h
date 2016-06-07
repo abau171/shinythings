@@ -32,5 +32,7 @@ typedef struct {
 
 bool plane_intersect(plane_t p, vector_t ray_start, vector_t ray_direction, vector_t* hit);
 
+bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t ray_start, vector_t ray_direction, vector_t* hit);
+
 #endif
 
