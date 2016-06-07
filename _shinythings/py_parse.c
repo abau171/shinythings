@@ -146,7 +146,9 @@ bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
         vector_t a = vertices[triangles[i].a];
         vector_t b = vertices[triangles[i].b];
         vector_t c = vertices[triangles[i].c];
-        triangle_normals[i] = vector_normalize(vector_cross(vector_sub(b, a), vector_sub(c, a)));
+        vector_t ab = vector_sub(b, a);
+        vector_t ac = vector_sub(c, a);
+        triangle_normals[i] = vector_normalize(vector_cross(ab, ac));
     }
     tm->triangle_normals = triangle_normals;
 

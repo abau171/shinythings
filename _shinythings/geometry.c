@@ -102,16 +102,22 @@ bool plane_intersect(plane_t p, vector_t ray_start, vector_t ray_direction, vect
     return true;
 }
 
-void barycentric(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t plane_hit, float* u, float* v, float* w)
+static void barycentric(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t plane_hit, float* u, float* v, float* w)
 {
-    float area_abc = vector_dot(normal, vector_cross(vector_sub(b, a), vector_sub(c, a)));
-    float area_hbc = vector_dot(normal, vector_cross(vector_sub(b, plane_hit), vector_sub(c, plane_hit)));
-    float area_hca = vector_dot(normal, vector_cross(vector_sub(c, plane_hit), vector_sub(a, plane_hit)));
-    float tmp_u = area_hbc / area_abc;
-    float tmp_v = area_hca / area_abc;
-    *u = tmp_u;
+    vector_t ab = vector_sub(b, a);
+    vector_t ac = vector_sub(c, a);
+    vector_t ah = vector_sub(plane_hit, a);
+    float ab_ab = vector_dot(ab, ab);
+    float ab_ac = vector_dot(ab, ac);
+    float ac_ac = vector_dot(ac, ac);
+    float ab_ah = vector_dot(ab, ah);
+    float ac_ah = vector_dot(ac, ah);
+    float inv_denom = 1.0 / (ab_ab * ac_ac - ab_ac * ab_ac);
+    float tmp_v = (ac_ac * ab_ah - ab_ac * ac_ah) * inv_denom;
+    float tmp_w = (ab_ab * ac_ah - ab_ac * ab_ah) * inv_denom;
+    *u = 1.0 - tmp_v - tmp_w;
     *v = tmp_v;
-    *w = 1.0 - tmp_u - tmp_v;
+    *w = tmp_w;
 }
 
 bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t ray_start, vector_t ray_direction, vector_t* hit)
