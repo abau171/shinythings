@@ -23,6 +23,22 @@ bool parse_sphere(PyObject* py_sphere, sphere_t* s)
     return true;
 }
 
+bool parse_plane(PyObject* py_plane, plane_t* p)
+{
+    PyObject* py_point;
+    PyObject* py_normal;
+    if (!PyArg_ParseTuple(py_plane, "OO", &py_point, &py_normal))
+        return false;
+
+    if (!parse_vector(py_point, &p->point))
+        return false;
+
+    if (!parse_vector(py_normal, &p->normal))
+        return false;
+
+    return true;
+}
+
 bool parse_color(PyObject* py_color, color_t* c)
 {
     if (!PyArg_ParseTuple(py_color, "fff", &c->r, &c->g, &c->b))
@@ -54,6 +70,22 @@ bool parse_sphere_model(PyObject* py_sphere_model, sphere_model_t* sm)
         return false;
 
     if (!parse_surface(py_surface, &sm->surface))
+        return false;
+
+    return true;
+}
+
+bool parse_plane_model(PyObject* py_plane_model, plane_model_t* pm)
+{
+    PyObject* py_plane;
+    PyObject* py_surface;
+    if (!PyArg_ParseTuple(py_plane_model, "OO", &py_plane, &py_surface))
+        return false;
+
+    if (!parse_plane(py_plane, &pm->plane))
+        return false;
+
+    if (!parse_surface(py_surface, &pm->surface))
         return false;
 
     return true;

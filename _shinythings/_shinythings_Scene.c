@@ -67,6 +67,23 @@ Scene_add_light(_shinythings_SceneObject* self, PyObject* args)
 }
 
 static PyObject*
+Scene_add_plane(_shinythings_SceneObject* self, PyObject* args)
+{
+    plane_model_t tmp_plane;
+    if (!parse_plane_model(args, &tmp_plane))
+        return NULL;
+    plane_model_t* new_planes = malloc((self->scene.num_planes + 1) * sizeof(plane_model_t));
+    memcpy(new_planes, self->scene.planes, self->scene.num_planes * sizeof(plane_model_t));
+    new_planes[self->scene.num_planes] = tmp_plane;
+    if (self->scene.planes != NULL)
+        free(self->scene.planes);
+    self->scene.planes = new_planes;
+    self->scene.num_planes++;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 Scene_render(_shinythings_SceneObject* self)
 {
     uint8_t* image_data = render(&self->scene, 960, 540);
@@ -88,6 +105,8 @@ static PyMethodDef Scene_methods[] = {
      "tests a test"},
     {"add_sphere", (PyCFunction) Scene_add_sphere, METH_VARARGS,
      "adds a sphere"},
+    {"add_plane", (PyCFunction) Scene_add_plane, METH_VARARGS,
+     "adds a plane"},
     {"add_light", (PyCFunction) Scene_add_light, METH_VARARGS,
      "adds a light"},
     {"render", (PyCFunction) Scene_render, METH_NOARGS,

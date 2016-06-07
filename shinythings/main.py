@@ -10,6 +10,9 @@ class Scene():
     def add_sphere(self, *args):
         self._scene.add_sphere(*args)
 
+    def add_plane(self, *args):
+        self._scene.add_plane(*args)
+
     def add_light(self, *args):
         self._scene.add_light(*args)
 
