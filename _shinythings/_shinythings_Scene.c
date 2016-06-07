@@ -103,11 +103,15 @@ Scene_add_model(_shinythings_SceneObject* self, PyObject* args)
 }
 
 static PyObject*
-Scene_render(_shinythings_SceneObject* self)
+Scene_render(_shinythings_SceneObject* self, PyObject* args)
 {
-    uint8_t* image_data = render(&self->scene, 960, 540);
+    float width, height;
+    if (!PyArg_ParseTuple(args, "ff", &width, &height))
+        return NULL;
 
-    npy_intp dims[3] = {540, 960, 3};
+    uint8_t* image_data = render(&self->scene, width, height);
+
+    npy_intp dims[3] = {height, width, 3};
     PyObject* output = (PyObject*) PyArray_SimpleNewFromData(3, dims, NPY_UINT8, image_data);
 
     return output;
@@ -130,7 +134,7 @@ static PyMethodDef Scene_methods[] = {
      "adds a light"},
     {"add_model", (PyCFunction) Scene_add_model, METH_VARARGS,
      "adds a model"},
-    {"render", (PyCFunction) Scene_render, METH_NOARGS,
+    {"render", (PyCFunction) Scene_render, METH_VARARGS,
      "renders the scene"},
     {NULL} /* Sentinel */
 };

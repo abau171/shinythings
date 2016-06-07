@@ -12,6 +12,6 @@ scene.add_model(
     ((0, 0.4, 1), 0, 1))
 #scene.add_model(*shinythings.obj.parse_obj("objects/box.obj"))
 #scene.add_model(*shinythings.obj.parse_obj("objects/suzanne.obj"))
-image = scene.render()
+image = scene.render(960, 540)
 image.show()
 
