@@ -1,2 +1,2 @@
-from shinythings.main import render
+from shinythings.main import Scene
 

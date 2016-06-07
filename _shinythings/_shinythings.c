@@ -2,28 +2,10 @@
 
 #include <stdint.h>
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy/ndarrayobject.h>
-
 #include "render.h"
-
-static PyObject*
-_shinythings_render(PyObject* self, PyObject* args)
-{
-    int width, height;
-    if (!PyArg_ParseTuple(args, "ii", &width, &height))
-        return NULL;
-
-    uint8_t* image_data = render(width, height);
-
-    npy_intp dims[3] = {height, width, 3};
-    PyObject* output = (PyObject*) PyArray_SimpleNewFromData(3, dims, NPY_UINT8, image_data);
-
-    return output;
-}
+#include "_shinythings_Scene.h"
 
 static PyMethodDef _shinythings_methods[] = {
-    {"render", _shinythings_render, METH_VARARGS, "Renders an image."},
     {NULL, NULL, 0, NULL}
 };
 
@@ -38,8 +20,17 @@ static PyModuleDef _shinythingsmodule = {
 PyMODINIT_FUNC
 PyInit__shinythings(void)
 {
-    import_array();
+    if (PyType_Ready(&_shinythings_SceneType) < 0)
+        return NULL;
+
     PyObject* m = PyModule_Create(&_shinythingsmodule);
+
+    void* result = _shinythings_SceneType_init();
+    if (result != NULL)
+        return result;
+    Py_INCREF(&_shinythings_SceneType);
+    PyModule_AddObject(m, "Scene", (PyObject*) &_shinythings_SceneType);
+
     return m;
 }
 
