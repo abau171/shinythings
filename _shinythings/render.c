@@ -76,11 +76,12 @@ static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_di
             vector_t a = model->vertices[triangle->a];
             vector_t b = model->vertices[triangle->b];
             vector_t c = model->vertices[triangle->c];
-            if (triangle_intersect(a, b, c, ray_start, ray_direction, &model_hit)) {
+            vector_t tri_normal = model->triangle_normals[j];
+            if (triangle_intersect(a, b, c, tri_normal, ray_start, ray_direction, &model_hit)) {
                 float distance_2 = vector_distance_2(ray_start, model_hit);
                 if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
                     closest_hit = model_hit;
-                    closest_normal = vector_normalize(vector_cross(vector_sub(b, a), vector_sub(c, a)));
+                    closest_normal = tri_normal;
                     closest_surface = &model->surface;
                     closest_distance_2 = distance_2;
                 }

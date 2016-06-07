@@ -32,6 +32,7 @@ typedef struct {
     int num_vertices, num_triangles;
     vector_t* vertices;
     triangle_t* triangles;
+    vector_t* triangle_normals;
     surface_t surface;
 } tri_model_t;
 

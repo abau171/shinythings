@@ -114,9 +114,8 @@ void barycentric(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t p
     *w = 1.0 - tmp_u - tmp_v;
 }
 
-bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t ray_start, vector_t ray_direction, vector_t* hit)
+bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t ray_start, vector_t ray_direction, vector_t* hit)
 {
-    vector_t normal = vector_normalize(vector_cross(vector_sub(b, a), vector_sub(c, a)));
     if (vector_dot(normal, ray_direction) > 0.0)
         return false;
 

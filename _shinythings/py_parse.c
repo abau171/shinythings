@@ -141,6 +141,15 @@ bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
     }
     tm->triangles = triangles;
 
+    vector_t* triangle_normals = malloc(num_triangles * sizeof(vector_t));
+    for (int i = 0; i < num_triangles; i++) {
+        vector_t a = vertices[triangles[i].a];
+        vector_t b = vertices[triangles[i].b];
+        vector_t c = vertices[triangles[i].c];
+        triangle_normals[i] = vector_normalize(vector_cross(vector_sub(b, a), vector_sub(c, a)));
+    }
+    tm->triangle_normals = triangle_normals;
+
     if (!parse_surface(py_surface, &tm->surface))
         return false;
 
