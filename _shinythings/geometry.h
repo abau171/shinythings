@@ -34,5 +34,11 @@ bool plane_intersect(plane_t p, vector_t ray_start, vector_t ray_direction, vect
 
 bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t ray_start, vector_t ray_direction, vector_t* hit);
 
+typedef struct {
+    vector_t high, low;
+} box_t;
+
+bool box_intersects(box_t box, vector_t ray_start, vector_t ray_direction);
+
 #endif
 

@@ -138,3 +138,31 @@ bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vec
     return true;
 }
 
+bool box_intersects(box_t box, vector_t ray_start, vector_t ray_direction)
+{
+    vector_t high_diff = vector_sub(box.high, ray_start);
+    vector_t low_diff = vector_sub(box.low, ray_start);
+
+    float td1, td2, t_max, t_min;
+
+    // X
+    td1 = high_diff.x / ray_direction.x;
+    td2 = low_diff.x / ray_direction.x;
+    t_max = fmaxf(td1, td2);
+    t_min = fminf(td1, td2);
+
+    // Y
+    td1 = high_diff.y / ray_direction.y;
+    td2 = low_diff.y / ray_direction.y;
+    t_max = fminf(t_max, fmaxf(td1, td2));
+    t_min = fmaxf(t_min, fminf(td1, td2));
+
+    // Z
+    td1 = high_diff.z / ray_direction.z;
+    td2 = low_diff.z / ray_direction.z;
+    t_max = fminf(t_max, fmaxf(td1, td2));
+    t_min = fmaxf(t_min, fminf(td1, td2));
+
+    return t_max >= 0.0 && t_max >= t_min;
+}
+
