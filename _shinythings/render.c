@@ -83,11 +83,15 @@ static color_t get_specular_color(scene_t* scene, vector_t hit, vector_t normal,
     color_t specular_sum = {0.0, 0.0, 0.0};
     for (int i = 0; i < scene->num_lights; i++) {
         vector_t to_light = vector_normalize(vector_sub(scene->lights[i].position, hit));
-        vector_t light_reflection = vector_sub(
-            vector_scale(normal, 2 * vector_dot(to_light, normal)),
-            to_light);
-        float specular_scalar = surface->specular * powf(fmaxf(0.0, -vector_dot(incoming, light_reflection)), surface->shininess);
-        specular_sum = color_add(specular_sum, color_scale(scene->lights[i].color, specular_scalar));
+        vector_t obj_hit, obj_normal;
+        surface_t* obj_surface;
+        if (!trace_ray_object(scene, hit, to_light, &obj_hit, &obj_normal, &obj_surface)) {
+            vector_t light_reflection = vector_sub(
+                vector_scale(normal, 2 * vector_dot(to_light, normal)),
+                to_light);
+            float specular_scalar = surface->specular * powf(fmaxf(0.0, -vector_dot(incoming, light_reflection)), surface->shininess);
+            specular_sum = color_add(specular_sum, color_scale(scene->lights[i].color, specular_scalar));
+        }
     }
     return specular_sum;
 }
