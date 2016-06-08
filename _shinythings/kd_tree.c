@@ -214,3 +214,16 @@ bool kd_intersect(tri_model_t* model, kd_node_t* node, vector_t ray_start, vecto
     }
 }
 
+void free_kd_tree(kd_node_t* kd_tree)
+{
+    if (kd_tree->is_leaf) {
+        kd_leaf_node_t* l_node = (kd_leaf_node_t*) kd_tree;
+        free(l_node->triangle_ids);
+    } else {
+        kd_internal_node_t* i_node = (kd_internal_node_t*) kd_tree;
+        free_kd_tree(i_node->left);
+        free_kd_tree(i_node->right);
+    }
+    free(kd_tree);
+}
+

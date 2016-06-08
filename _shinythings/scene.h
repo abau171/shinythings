@@ -50,5 +50,8 @@ typedef struct {
     tri_model_t* models;
 } scene_t;
 
+void init_scene_components(scene_t* scene);
+void free_scene_components(scene_t* scene);
+
 #endif
 

@@ -21,18 +21,16 @@ Scene_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 static PyObject*
 Scene_init(_shinythings_SceneObject* self, PyObject* args)
 {
-    self->scene.num_spheres = 0;
-    self->scene.num_planes = 0;
-    self->scene.num_lights = 0;
-    self->scene.num_models = 0;
-    self->scene.spheres = NULL;
-    self->scene.planes = NULL;
-    self->scene.lights = NULL;
-    self->scene.models = NULL;
+    init_scene_components(&self->scene);
     Py_RETURN_NONE;
 }
 
-#warning DONT FORGET THE DEALLOC
+static void
+Scene_dealloc(_shinythings_SceneObject* self)
+{
+    free_scene_components(&self->scene);
+    Py_TYPE(self)->tp_free((PyObject*) self);
+}
 
 static PyObject*
 Scene_add_sphere(_shinythings_SceneObject* self, PyObject* args)
@@ -144,7 +142,7 @@ PyTypeObject _shinythings_SceneType = {
     "_shinythings.Scene",    /* tp_name */
     sizeof(_shinythings_SceneObject),   /* tp_basicsize */
     0,                       /* tp_itemsize */
-    0,                       /* tp_dealloc */
+    (destructor) Scene_dealloc,   /* tp_dealloc */
     0,                       /* tp_print */
     0,                       /* tp_getattr */
     0,                       /* tp_setattr */
