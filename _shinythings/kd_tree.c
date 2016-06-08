@@ -162,6 +162,7 @@ bool kd_intersect(tri_model_t* model, kd_node_t* node, vector_t ray_start, vecto
 {
     if (node->is_leaf) {
         vector_t model_hit;
+        float u, v, w;
         float closest_distance_2 = -1.0;
         vector_t closest_hit, closest_normal;
         kd_leaf_node_t* l_node = (kd_leaf_node_t*) node;
@@ -171,11 +172,15 @@ bool kd_intersect(tri_model_t* model, kd_node_t* node, vector_t ray_start, vecto
             vector_t b = model->vertices[triangle->b];
             vector_t c = model->vertices[triangle->c];
             vector_t tri_normal = model->triangle_normals[l_node->triangle_ids[i]];
-            if (triangle_intersect(a, b, c, tri_normal, ray_start, ray_direction, &model_hit)) {
+            if (triangle_intersect(a, b, c, tri_normal, ray_start, ray_direction, &model_hit, &u, &v, &w)) {
                 float distance_2 = vector_distance_2(ray_start, model_hit);
                 if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
+                    vector_t smooth_normal = vector_add(vector_add(
+                        vector_scale(model->vertex_normals[triangle->a], u),
+                        vector_scale(model->vertex_normals[triangle->b], v)),
+                        vector_scale(model->vertex_normals[triangle->c], w));
                     closest_hit = model_hit;
-                    closest_normal = tri_normal;
+                    closest_normal = smooth_normal;
                     closest_distance_2 = distance_2;
                 }
             }

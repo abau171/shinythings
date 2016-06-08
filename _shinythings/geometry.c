@@ -120,7 +120,7 @@ static void barycentric(vector_t a, vector_t b, vector_t c, vector_t normal, vec
     *w = tmp_w;
 }
 
-bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t ray_start, vector_t ray_direction, vector_t* hit)
+bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t ray_start, vector_t ray_direction, vector_t* hit, float* u, float* v, float* w)
 {
     if (vector_dot(normal, ray_direction) > 0.0)
         return false;
@@ -129,12 +129,15 @@ bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vec
     if (!plane_intersect((plane_t) {a, normal}, ray_start, ray_direction, &plane_hit))
         return false;
 
-    float u, v, w;
-    barycentric(a, b, c, normal, plane_hit, &u, &v, &w);
-    if (u < 0.0 || v < 0.0 || w < 0.0)
+    float tmp_u, tmp_v, tmp_w;
+    barycentric(a, b, c, normal, plane_hit, &tmp_u, &tmp_v, &tmp_w);
+    if (tmp_u < 0.0 || tmp_v < 0.0 || tmp_w < 0.0)
         return false;
 
     *hit = plane_hit;
+    *u = tmp_u;
+    *v = tmp_v;
+    *w = tmp_w;
     return true;
 }
 

@@ -38,6 +38,7 @@ typedef struct {
     vector_t* vertices;
     triangle_t* triangles;
     vector_t* triangle_normals;
+    vector_t* vertex_normals;
     kd_node_t* kd_tree;
     surface_t surface;
 } tri_model_t;

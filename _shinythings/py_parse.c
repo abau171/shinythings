@@ -153,6 +153,23 @@ bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
     }
     tm->triangle_normals = triangle_normals;
 
+    vector_t* vertex_normals = calloc(num_vertices, sizeof(vector_t));
+    int* num_adjacent_faces = calloc(num_vertices, sizeof(int));
+    for (int i = 0; i < num_triangles; i++) {
+        triangle_t* t = &triangles[i];
+        vertex_normals[t->a] = vector_add(vertex_normals[t->a], triangle_normals[i]);
+        num_adjacent_faces[t->a]++;
+        vertex_normals[t->b] = vector_add(vertex_normals[t->b], triangle_normals[i]);
+        num_adjacent_faces[t->b]++;
+        vertex_normals[t->c] = vector_add(vertex_normals[t->c], triangle_normals[i]);
+        num_adjacent_faces[t->c]++;
+    }
+    for (int i = 0; i < num_vertices; i++) {
+        vertex_normals[i] = vector_scale(vertex_normals[i], 1.0 / num_adjacent_faces[i]);
+    }
+    free(num_adjacent_faces);
+    tm->vertex_normals = vertex_normals;
+
     tm->kd_tree = make_kd_tree(tm);
 
     if (!parse_surface(py_surface, &tm->surface))

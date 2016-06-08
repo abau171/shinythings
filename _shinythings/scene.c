@@ -20,6 +20,7 @@ void free_model_components(tri_model_t* model)
     free(model->vertices);
     free(model->triangles);
     free(model->triangle_normals);
+    free(model->vertex_normals);
     free_kd_tree(model->kd_tree);
 }
 
