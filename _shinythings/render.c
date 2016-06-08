@@ -6,6 +6,7 @@
 #include "geometry.h"
 #include "color.h"
 #include "scene.h"
+#include "kd_tree.h"
 
 #include "render.h"
 
@@ -33,6 +34,14 @@ static light_t lights[] = {
     {{-3.0, 3.0, -3.0}, {0.0, 3.0, 1.0}},
 };
 static int num_lights = 2;*/
+
+static bool model_intersect(tri_model_t* model, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal)
+{
+    float t = box_intersects(model->kd_tree->bbox, ray_start, ray_direction);
+    if (t >= 0.0)
+        return kd_intersect(model, model->kd_tree, ray_start, ray_direction, hit, normal);
+    return false;
+}
 
 static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal, surface_t** surface)
 {
@@ -68,23 +77,16 @@ static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_di
         }
     }
 
-    vector_t model_hit;
+    vector_t model_hit, model_normal;
     for (int i = 0; i < scene->num_models; i++) {
         tri_model_t* model = &scene->models[i];
-        for (int j = 0; j < model->num_triangles; j++) {
-            triangle_t* triangle = &model->triangles[j];
-            vector_t a = model->vertices[triangle->a];
-            vector_t b = model->vertices[triangle->b];
-            vector_t c = model->vertices[triangle->c];
-            vector_t tri_normal = model->triangle_normals[j];
-            if (triangle_intersect(a, b, c, tri_normal, ray_start, ray_direction, &model_hit)) {
-                float distance_2 = vector_distance_2(ray_start, model_hit);
-                if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
-                    closest_hit = model_hit;
-                    closest_normal = tri_normal;
-                    closest_surface = &model->surface;
-                    closest_distance_2 = distance_2;
-                }
+        if (model_intersect(model, ray_start, ray_direction, &model_hit, &model_normal)) {
+            float distance_2 = vector_distance_2(ray_start, model_hit);
+            if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
+                closest_hit = model_hit;
+                closest_normal = model_normal;
+                closest_surface = &scene->models[i].surface;
+                closest_distance_2 = distance_2;
             }
         }
     }

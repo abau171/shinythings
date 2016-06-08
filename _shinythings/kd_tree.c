@@ -149,3 +149,59 @@ kd_node_t* make_kd_tree(tri_model_t* model)
     return make_kd_tree_rec(model, model->num_triangles, triangle_ids, get_bounding_box_all(model, model->num_triangles, triangle_ids));
 }
 
+bool kd_intersect(tri_model_t* model, kd_node_t* node, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal)
+{
+    if (node->is_leaf) {
+        vector_t model_hit;
+        float closest_distance_2 = -1.0;
+        vector_t closest_hit, closest_normal;
+        kd_leaf_node_t* l_node = (kd_leaf_node_t*) node;
+        for (int i = 0; i < l_node->num_triangle_ids; i++) {
+            triangle_t* triangle = &model->triangles[l_node->triangle_ids[i]];
+            vector_t a = model->vertices[triangle->a];
+            vector_t b = model->vertices[triangle->b];
+            vector_t c = model->vertices[triangle->c];
+            vector_t tri_normal = model->triangle_normals[l_node->triangle_ids[i]];
+            if (triangle_intersect(a, b, c, tri_normal, ray_start, ray_direction, &model_hit)) {
+                float distance_2 = vector_distance_2(ray_start, model_hit);
+                if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
+                    closest_hit = model_hit;
+                    closest_normal = tri_normal;
+                    closest_distance_2 = distance_2;
+                }
+            }
+        }
+        if (closest_distance_2 < 0.0) {
+            return false;
+        } else {
+            *hit = closest_hit;
+            *normal = closest_normal;
+            return true;
+        }
+    } else {
+        kd_internal_node_t* i_node = (kd_internal_node_t*) node;
+        float t_left = box_intersects(i_node->left->bbox, ray_start, ray_direction);
+        float t_right = box_intersects(i_node->right->bbox, ray_start, ray_direction);
+        if (t_left >= 0.0 && t_right >= 0.0) {
+            if (t_left < t_right) {
+                if (kd_intersect(model, i_node->left, ray_start, ray_direction, hit, normal))
+                    return true;
+                if (kd_intersect(model, i_node->right, ray_start, ray_direction, hit, normal))
+                    return true;
+            } else {
+                if (kd_intersect(model, i_node->right, ray_start, ray_direction, hit, normal))
+                    return true;
+                if (kd_intersect(model, i_node->left, ray_start, ray_direction, hit, normal))
+                    return true;
+            }
+        } else if (t_left >= 0.0) {
+            return kd_intersect(model, i_node->left, ray_start, ray_direction, hit, normal);
+        } else if (t_right >= 0.0) {
+            return kd_intersect(model, i_node->right, ray_start, ray_direction, hit, normal);
+        } else {
+            printf("impossible kd tree times (%f, %f)\n", t_left, t_right);
+        }
+        return false;
+    }
+}
+
