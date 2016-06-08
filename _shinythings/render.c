@@ -173,7 +173,7 @@ static color_t get_pixel(scene_t* scene, int width, int height, int px, int py)
 
 uint8_t* render(scene_t* scene, int width, int height)
 {
-    uint8_t* image_data = malloc(width * height * 3 * sizeof(uint));
+    uint8_t* image_data = malloc(width * height * 3 * sizeof(uint8_t));
 
     for (int px = 0; px < width; px++) {
         for (int py = 0; py < height; py++) {

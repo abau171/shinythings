@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "geometry.h"
@@ -124,11 +125,17 @@ static kd_node_t* make_kd_tree_rec(tri_model_t* model, int num_triangle_ids, int
 
     int overlap = num_in_left_box + num_in_right_box - num_triangle_ids;
     if (overlap >= num_triangle_ids / 2) {
+        free(triangle_ids_in_left_box);
+        free(triangle_ids_in_right_box);
         kd_leaf_node_t* l_node = malloc(sizeof(kd_leaf_node_t));
         l_node->is_leaf = true;
         l_node->bbox = bbox;
         l_node->num_triangle_ids = num_triangle_ids;
-        l_node->triangle_ids = triangle_ids;
+        int* triangle_ids_copy = malloc(num_triangle_ids * sizeof(int));
+        for (int i = 0; i < num_triangle_ids; i++) {
+            triangle_ids_copy[i] = triangle_ids[i];
+        }
+        l_node->triangle_ids = triangle_ids_copy;
         return (kd_node_t*) l_node;
     } else {
         kd_internal_node_t* i_node = malloc(sizeof(kd_internal_node_t));
@@ -136,6 +143,8 @@ static kd_node_t* make_kd_tree_rec(tri_model_t* model, int num_triangle_ids, int
         i_node->bbox = bbox;
         i_node->left = make_kd_tree_rec(model, num_in_left_box, triangle_ids_in_left_box, left_box);
         i_node->right = make_kd_tree_rec(model, num_in_right_box, triangle_ids_in_right_box, right_box);
+        free(triangle_ids_in_left_box);
+        free(triangle_ids_in_right_box);
         return (kd_node_t*) i_node;
     }
 }
