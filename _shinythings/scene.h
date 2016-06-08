@@ -29,10 +29,16 @@ typedef struct {
 } triangle_t;
 
 typedef struct {
+    bool is_leaf;
+    box_t bbox;
+} kd_node_t;
+
+typedef struct {
     int num_vertices, num_triangles;
     vector_t* vertices;
     triangle_t* triangles;
     vector_t* triangle_normals;
+    kd_node_t* kd_tree;
     surface_t surface;
 } tri_model_t;
 

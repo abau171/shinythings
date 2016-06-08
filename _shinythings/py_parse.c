@@ -3,6 +3,7 @@
 #include "geometry.h"
 #include "color.h"
 #include "scene.h"
+#include "kd_tree.h"
 
 bool parse_vector(PyObject* py_vector, vector_t* v)
 {
@@ -151,6 +152,8 @@ bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
         triangle_normals[i] = vector_normalize(vector_cross(ab, ac));
     }
     tm->triangle_normals = triangle_normals;
+
+    tm->kd_tree = make_kd_tree(tm);
 
     if (!parse_surface(py_surface, &tm->surface))
         return false;
