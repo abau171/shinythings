@@ -116,6 +116,24 @@ Scene_set_camera(_shinythings_SceneObject* self, PyObject* args)
 }
 
 static PyObject*
+Scene_set_background_color(_shinythings_SceneObject* self, PyObject* args)
+{
+    if (!parse_color(args, &self->scene.background_color))
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+Scene_set_ambient_color(_shinythings_SceneObject* self, PyObject* args)
+{
+    if (!parse_color(args, &self->scene.ambient_color))
+        return NULL;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 Scene_render(_shinythings_SceneObject* self, PyObject* args)
 {
     float width, height;
@@ -149,6 +167,10 @@ static PyMethodDef Scene_methods[] = {
      "adds a model"},
     {"set_camera", (PyCFunction) Scene_set_camera, METH_VARARGS,
      "sets the camera settings"},
+    {"set_background_color", (PyCFunction) Scene_set_background_color, METH_VARARGS,
+     "sets the background color"},
+    {"set_ambient_color", (PyCFunction) Scene_set_ambient_color, METH_VARARGS,
+     "sets the ambient color"},
     {"render", (PyCFunction) Scene_render, METH_VARARGS,
      "renders the scene"},
     {NULL} /* Sentinel */

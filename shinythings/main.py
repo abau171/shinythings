@@ -22,6 +22,12 @@ class Scene():
     def set_camera(self, *args):
         self._scene.set_camera(*args)
 
+    def set_background_color(self, *args):
+        self._scene.set_background_color(*args)
+
+    def set_ambient_color(self, *args):
+        self._scene.set_ambient_color(*args)
+
     def render(self, width, height):
         return PIL.Image.fromarray(self._scene.render(width, height), "RGB")
 

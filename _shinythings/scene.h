@@ -50,6 +50,7 @@ typedef struct {
     light_t* lights;
     tri_model_t* models;
     vector_t camera, camera_look, camera_right, camera_down;
+    color_t background_color, ambient_color;
 } scene_t;
 
 void init_scene_components(scene_t* scene);

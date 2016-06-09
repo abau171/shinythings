@@ -17,6 +17,8 @@ void init_scene_components(scene_t* scene)
     scene->camera_look = (vector_t) {0.0, 0.0, -3.0};
     scene->camera_right = (vector_t) {1.92, 0.0, 0.0};
     scene->camera_down = (vector_t) {0.0, -1.08, 0.0};
+    scene->background_color = (color_t) {0.0, 0.0, 0.0};
+    scene->ambient_color = (color_t) {0.05, 0.05, 0.05};
 }
 
 void free_model_components(tri_model_t* model)

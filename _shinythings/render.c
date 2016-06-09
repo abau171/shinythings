@@ -10,26 +10,6 @@
 
 #include "render.h"
 
-static color_t ambient = {0.03, 0.03, 0.03};
-
-/*static sphere_model_t spheres[] = {
-    {{{0.0, -0.5, -1.0}, 0.25}, {{0.0, 0.4, 1.0}, 0.3, 20.0}},
-    {{{0.0, 0.0, -1.0}, 0.25}, {{0.0, 0.4, 1.0}, 0.3, 20.0}}
-};
-static int num_spheres = 2;
-
-static plane_model_t planes[] = {
-    {{{0.0, -0.5, 0.0}, {0.0, 1.0, 0.0}}, {{1.0, 0.4, 0.0}, 0.0, 1.0}},
-    {{{0.0, -0.5, 0.0}, {0.0, 0.7071, 0.7071}}, {{1.0, 0.4, 0.0}, 0.0, 1.0}}
-};
-static int num_planes = 1;
-
-static light_t lights[] = {
-    {{3.0, 3.0, 3.0}, {10.0, 10.0, 10.0}},
-    {{-3.0, 3.0, -3.0}, {0.0, 3.0, 1.0}},
-};
-static int num_lights = 2;*/
-
 static bool model_intersect(tri_model_t* model, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal)
 {
     float t = box_intersects(model->kd_tree->bbox, ray_start, ray_direction);
@@ -133,7 +113,7 @@ static color_t get_diffuse_color(scene_t* scene, vector_t hit, vector_t normal, 
 
 static color_t get_ambient_color(scene_t* scene, surface_t* surface)
 {
-    return color_mult(ambient, surface->color);
+    return color_mult(scene->ambient_color, surface->color);
 }
 
 static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direction)
@@ -145,7 +125,7 @@ static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direct
                                    get_diffuse_color(scene, obj_hit, obj_normal, obj_surface)),
                                    get_specular_color(scene, obj_hit, obj_normal, ray_direction, obj_surface));
     }
-    return (color_t) {0.0, 0.0, 0.0};
+    return scene->background_color;
 }
 
 static color_t get_screen_color(scene_t* scene, float x, float y)
