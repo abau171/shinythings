@@ -10,11 +10,6 @@
 
 #include "render.h"
 
-static vector_t camera = {0.0, 0.0, 3.0};
-static vector_t camera_look = {0.0, 0.0, -3.0};
-static vector_t camera_right = {1.92, 0.0, 0.0};
-static vector_t camera_down = {0.0, -1.08, 0.0};
-
 static color_t ambient = {0.03, 0.03, 0.03};
 
 /*static sphere_model_t spheres[] = {
@@ -157,11 +152,11 @@ static color_t get_screen_color(scene_t* scene, float x, float y)
 {
     vector_t ray_direction = vector_normalize(
         vector_add(vector_add(
-            camera_look,
-            vector_scale(camera_right, x)),
-            vector_scale(camera_down, y)));
+            scene->camera_look,
+            vector_scale(scene->camera_right, x)),
+            vector_scale(scene->camera_down, y)));
 
-    return trace_ray(scene, camera, ray_direction);
+    return trace_ray(scene, scene->camera, ray_direction);
 }
 
 static color_t get_pixel(scene_t* scene, int width, int height, int px, int py)

@@ -19,6 +19,9 @@ class Scene():
     def add_model(self, *args):
         self._scene.add_model(*args)
 
+    def set_camera(self, *args):
+        self._scene.set_camera(*args)
+
     def render(self, width, height):
         return PIL.Image.fromarray(self._scene.render(width, height), "RGB")
 

@@ -178,3 +178,27 @@ bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
     return true;
 }
 
+bool parse_camera_settings(PyObject* py_camera_settings, vector_t* camera, vector_t* camera_look, vector_t* camera_right, vector_t* camera_down)
+{
+    PyObject* py_camera;
+    PyObject* py_camera_look;
+    PyObject* py_camera_right;
+    PyObject* py_camera_down;
+    if (!PyArg_ParseTuple(py_camera_settings, "OOOO", &py_camera, &py_camera_look, &py_camera_right, &py_camera_down))
+        return false;
+
+    if (!parse_vector(py_camera, camera))
+        return false;
+
+    if (!parse_vector(py_camera_look, camera_look))
+        return false;
+
+    if (!parse_vector(py_camera_right, camera_right))
+        return false;
+
+    if (!parse_vector(py_camera_down, camera_down))
+        return false;
+
+    return true;
+}
+

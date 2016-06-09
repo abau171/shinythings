@@ -13,6 +13,10 @@ void init_scene_components(scene_t* scene)
     scene->planes = NULL;
     scene->lights = NULL;
     scene->models = NULL;
+    scene->camera = (vector_t) {0.0, 0.0, 3.0};
+    scene->camera_look = (vector_t) {0.0, 0.0, -3.0};
+    scene->camera_right = (vector_t) {1.92, 0.0, 0.0};
+    scene->camera_down = (vector_t) {0.0, -1.08, 0.0};
 }
 
 void free_model_components(tri_model_t* model)

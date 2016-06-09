@@ -101,6 +101,21 @@ Scene_add_model(_shinythings_SceneObject* self, PyObject* args)
 }
 
 static PyObject*
+Scene_set_camera(_shinythings_SceneObject* self, PyObject* args)
+{
+    vector_t camera, camera_look, camera_right, camera_down;
+    if (!parse_camera_settings(args, &camera, &camera_look, &camera_right, &camera_down))
+        return NULL;
+
+    self->scene.camera = camera;
+    self->scene.camera_look = camera_look;
+    self->scene.camera_right = camera_right;
+    self->scene.camera_down = camera_down;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 Scene_render(_shinythings_SceneObject* self, PyObject* args)
 {
     float width, height;
@@ -132,6 +147,8 @@ static PyMethodDef Scene_methods[] = {
      "adds a light"},
     {"add_model", (PyCFunction) Scene_add_model, METH_VARARGS,
      "adds a model"},
+    {"set_camera", (PyCFunction) Scene_set_camera, METH_VARARGS,
+     "sets the camera settings"},
     {"render", (PyCFunction) Scene_render, METH_VARARGS,
      "renders the scene"},
     {NULL} /* Sentinel */
