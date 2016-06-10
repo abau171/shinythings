@@ -7,6 +7,8 @@
 typedef struct {
     color_t color;
     float specular, shininess, reflectance;
+    bool transparent;
+    color_t absorbance;
 } surface_t;
 
 typedef struct {

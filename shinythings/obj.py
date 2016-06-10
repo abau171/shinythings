@@ -35,5 +35,5 @@ def parse_obj(filename):
                     triangles.append((vertex_indices[0], vertex_indices[1], vertex_indices[2]))
                 if len(vertex_indices) >= 4:
                     triangles.append((vertex_indices[2], vertex_indices[3], vertex_indices[0]))
-    return (vertices, triangles, ((0, 0.1, 0.25), 0.2, 10, 0.3))
+    return (vertices, triangles, ((0, 0, 0), 0.01, 1, 0, True, (80, 20, 0)))
 

@@ -50,10 +50,14 @@ bool parse_color(PyObject* py_color, color_t* c)
 bool parse_surface(PyObject* py_surface, surface_t* s)
 {
     PyObject* py_color;
-    if (!PyArg_ParseTuple(py_surface, "Offf", &py_color, &s->specular, &s->shininess, &s->reflectance))
+    PyObject* py_absorbance;
+    if (!PyArg_ParseTuple(py_surface, "OfffpO", &py_color, &s->specular, &s->shininess, &s->reflectance, &s->transparent, &py_absorbance))
         return false;
 
     if (!parse_color(py_color, &s->color))
+        return false;
+
+    if (!parse_color(py_absorbance, &s->absorbance))
         return false;
 
     return true;

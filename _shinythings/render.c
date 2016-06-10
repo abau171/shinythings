@@ -119,25 +119,42 @@ static color_t get_ambient_color(scene_t* scene, surface_t* surface)
     return color_mult(scene->ambient_color, surface->color);
 }
 
-static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direction, int depth);
+static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direction, vector_t* hit, int depth);
+
 static color_t get_reflection_color(scene_t* scene, vector_t hit, vector_t normal, vector_t incoming, surface_t* surface, int depth)
 {
     vector_t reflected = vector_add(incoming, vector_scale(normal, -2 * vector_dot(incoming, normal)));
-    return color_scale(trace_ray(scene, hit, reflected, depth - 1), surface->reflectance);
+    return color_scale(trace_ray(scene, hit, reflected, NULL, depth - 1), surface->reflectance);
 }
 
-static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direction, int depth)
+static color_t get_transparent_color(scene_t* scene, vector_t hit, vector_t normal, vector_t incoming, surface_t* surface, int depth)
+{
+    vector_t next_hit;
+    color_t raw_color = trace_ray(scene, hit, incoming, &next_hit, depth - 1);
+    if (vector_dot(normal, incoming) < 0.0) {
+        color_t absorbance = color_exp(2.0, color_scale(surface->absorbance, -vector_distance(hit, next_hit)));
+        return color_mult(raw_color, absorbance);
+    }
+    return raw_color;
+}
+
+static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direction, vector_t* hit, int depth)
 {
     if (depth <= 0)
         return (color_t) {0.0, 0.0, 0.0};
     vector_t obj_hit, obj_normal;
     surface_t* obj_surface;
     if (trace_ray_object(scene, ray_start, ray_direction, &obj_hit, &obj_normal, &obj_surface)) {
-        return color_add(color_add(color_add(
+        if (hit != NULL)
+            *hit = obj_hit;
+        color_t result = color_add(color_add(color_add(
             get_ambient_color(scene, obj_surface),
             get_diffuse_color(scene, obj_hit, obj_normal, obj_surface)),
             get_specular_color(scene, obj_hit, obj_normal, ray_direction, obj_surface)),
             get_reflection_color(scene, obj_hit, obj_normal, ray_direction, obj_surface, depth));
+        if (obj_surface->transparent)
+            result = color_add(result, get_transparent_color(scene, obj_hit, obj_normal, ray_direction, obj_surface, depth));
+        return result;
     }
     return scene->background_color;
 }
@@ -150,7 +167,7 @@ static color_t get_screen_color(scene_t* scene, float x, float y)
             vector_scale(scene->camera_right, x)),
             vector_scale(scene->camera_down, y)));
 
-    return trace_ray(scene, scene->camera, ray_direction, 5);
+    return trace_ray(scene, scene->camera, ray_direction, NULL, 7);
 }
 
 static color_t get_pixel(scene_t* scene, int width, int height, int px, int py)

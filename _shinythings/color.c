@@ -16,6 +16,13 @@ color_t color_mult(color_t a, color_t b)
                       a.b * b.b};
 }
 
+color_t color_exp(float base, color_t c)
+{
+    return (color_t) {powf(base, c.r),
+                      powf(base, c.g),
+                      powf(base, c.b)};
+}
+
 color_t color_scale(color_t c, float scalar)
 {
     return (color_t) {c.r * scalar,

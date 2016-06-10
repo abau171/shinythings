@@ -122,9 +122,6 @@ static void barycentric(vector_t a, vector_t b, vector_t c, vector_t normal, vec
 
 bool triangle_intersect(vector_t a, vector_t b, vector_t c, vector_t normal, vector_t ray_start, vector_t ray_direction, vector_t* hit, float* u, float* v, float* w)
 {
-    if (vector_dot(normal, ray_direction) > 0.0)
-        return false;
-
     vector_t plane_hit;
     if (!plane_intersect((plane_t) {a, normal}, ray_start, ray_direction, &plane_hit))
         return false;
