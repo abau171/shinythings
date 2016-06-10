@@ -20,7 +20,7 @@ static bool model_intersect(tri_model_t* model, vector_t ray_start, vector_t ray
 
 static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal, surface_t** surface)
 {
-    ray_start = vector_add(ray_start, vector_scale(ray_direction, 0.01));
+    ray_start = vector_add(ray_start, vector_scale(ray_direction, 0.0001));
 
     float closest_distance_2 = -1.0;
     vector_t closest_hit, closest_normal;
@@ -81,11 +81,14 @@ static color_t get_specular_color(scene_t* scene, vector_t hit, vector_t normal,
     color_t specular_sum = {0.0, 0.0, 0.0};
     for (int i = 0; i < scene->num_lights; i++) {
         vector_t to_light = vector_normalize(vector_sub(scene->lights[i].position, hit));
+        float light_dot_normal = vector_dot(to_light, normal);
+        if (light_dot_normal < 0.0)
+            continue;
         vector_t obj_hit, obj_normal;
         surface_t* obj_surface;
         if (!trace_ray_object(scene, hit, to_light, &obj_hit, &obj_normal, &obj_surface)) {
             vector_t light_reflection = vector_sub(
-                vector_scale(normal, 2 * vector_dot(to_light, normal)),
+                vector_scale(normal, 2 * light_dot_normal),
                 to_light);
             float specular_scalar = surface->specular * powf(fmaxf(0.0, -vector_dot(incoming, light_reflection)), surface->shininess);
             specular_sum = color_add(specular_sum, color_scale(scene->lights[i].color, specular_scalar));

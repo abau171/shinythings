@@ -38,7 +38,7 @@ typedef struct {
     vector_t high, low;
 } box_t;
 
-float box_intersects(box_t box, vector_t ray_start, vector_t ray_direction);
+bool box_intersects(box_t box, vector_t ray_start, vector_t ray_direction);
 
 #endif
 

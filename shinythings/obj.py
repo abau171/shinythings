@@ -24,7 +24,7 @@ def parse_obj(filename):
             if len(tokens) == 0:
                 continue
             if tokens[0] == "v":
-                vertex = tuple(0.5 * float(dim_str) for dim_str in tokens[1:4])
+                vertex = tuple(5.0 * float(dim_str) for dim_str in tokens[1:4])
                 vertices.append(vertex)
             elif tokens[0] == "f":
                 vertex_indices = []

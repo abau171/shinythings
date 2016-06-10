@@ -194,29 +194,37 @@ bool kd_intersect(tri_model_t* model, kd_node_t* node, vector_t ray_start, vecto
         }
     } else {
         kd_internal_node_t* i_node = (kd_internal_node_t*) node;
-        float t_left = box_intersects(i_node->left->bbox, ray_start, ray_direction);
-        float t_right = box_intersects(i_node->right->bbox, ray_start, ray_direction);
-        if (t_left >= 0.0 && t_right >= 0.0) {
-            if (t_left < t_right) {
-                if (kd_intersect(model, i_node->left, ray_start, ray_direction, hit, normal))
-                    return true;
-                if (kd_intersect(model, i_node->right, ray_start, ray_direction, hit, normal))
-                    return true;
+        vector_t left_hit, right_hit, left_normal, right_normal;
+
+        bool left_success = false;
+        bool right_success = false;
+        if (box_intersects(i_node->left->bbox, ray_start, ray_direction))
+            left_success = kd_intersect(model, i_node->left, ray_start, ray_direction, &left_hit, &left_normal);
+        if (box_intersects(i_node->right->bbox, ray_start, ray_direction))
+            right_success = kd_intersect(model, i_node->right, ray_start, ray_direction, &right_hit, &right_normal);
+
+        if (left_success && right_success) {
+            float left_distance_2 = vector_distance_2(ray_start, left_hit);
+            float right_distance_2 = vector_distance_2(ray_start, right_hit);
+            if (left_distance_2 < right_distance_2) {
+                *hit = left_hit;
+                *normal = left_normal;
             } else {
-                if (kd_intersect(model, i_node->right, ray_start, ray_direction, hit, normal))
-                    return true;
-                if (kd_intersect(model, i_node->left, ray_start, ray_direction, hit, normal))
-                    return true;
+                *hit = right_hit;
+                *normal = right_normal;
             }
-        } else if (t_left >= 0.0) {
-            return kd_intersect(model, i_node->left, ray_start, ray_direction, hit, normal);
-        } else if (t_right >= 0.0) {
-            return kd_intersect(model, i_node->right, ray_start, ray_direction, hit, normal);
+        } else if (left_success) {
+            *hit = left_hit;
+            *normal = left_normal;
+        } else if (right_success) {
+            *hit = right_hit;
+            *normal = right_normal;
         } else {
-            printf("impossible kd tree times (%f, %f)\n", t_left, t_right);
+            return false;
         }
-        return false;
+        return true;
     }
+    return false;
 }
 
 void free_kd_tree(kd_node_t* kd_tree)
