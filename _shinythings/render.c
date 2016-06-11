@@ -147,11 +147,12 @@ static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direct
     if (trace_ray_object(scene, ray_start, ray_direction, &obj_hit, &obj_normal, &obj_surface)) {
         if (hit != NULL)
             *hit = obj_hit;
-        color_t result = color_add(color_add(color_add(
+        color_t result = color_add(color_add(
             get_ambient_color(scene, obj_surface),
             get_diffuse_color(scene, obj_hit, obj_normal, obj_surface)),
-            get_specular_color(scene, obj_hit, obj_normal, ray_direction, obj_surface)),
-            get_reflection_color(scene, obj_hit, obj_normal, ray_direction, obj_surface, depth));
+            get_specular_color(scene, obj_hit, obj_normal, ray_direction, obj_surface));
+        if (obj_surface->reflectance > 0.0)
+            result = color_add(result, get_reflection_color(scene, obj_hit, obj_normal, ray_direction, obj_surface, depth));
         if (obj_surface->transparent)
             result = color_add(result, get_transparent_color(scene, obj_hit, obj_normal, ray_direction, obj_surface, depth));
         return result;
@@ -167,7 +168,7 @@ static color_t get_screen_color(scene_t* scene, float x, float y)
             vector_scale(scene->camera_right, x)),
             vector_scale(scene->camera_down, y)));
 
-    return trace_ray(scene, scene->camera, ray_direction, NULL, 7);
+    return trace_ray(scene, scene->camera, ray_direction, NULL, 250);
 }
 
 static color_t get_pixel(scene_t* scene, int width, int height, int px, int py)
