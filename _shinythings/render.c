@@ -20,8 +20,6 @@ static bool model_intersect(tri_model_t* model, vector_t ray_start, vector_t ray
 
 static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal, surface_t** surface)
 {
-    ray_start = vector_add(ray_start, vector_scale(ray_direction, 0.0001));
-
     float closest_distance_2 = -1.0;
     vector_t closest_hit, closest_normal;
     surface_t* closest_surface = NULL;
@@ -86,7 +84,7 @@ static color_t get_specular_color(scene_t* scene, vector_t hit, vector_t normal,
             continue;
         vector_t obj_hit, obj_normal;
         surface_t* obj_surface;
-        if (!trace_ray_object(scene, hit, to_light, &obj_hit, &obj_normal, &obj_surface)) {
+        if (!trace_ray_object(scene, vector_add(hit, vector_scale(normal, 0.0001)), to_light, &obj_hit, &obj_normal, &obj_surface)) {
             vector_t light_reflection = vector_sub(
                 vector_scale(normal, 2 * light_dot_normal),
                 to_light);
@@ -106,7 +104,7 @@ static color_t get_diffuse_color(scene_t* scene, vector_t hit, vector_t normal, 
         to_light = vector_normalize(to_light);
         vector_t obj_hit, obj_normal;
         surface_t* obj_surface;
-        if (!trace_ray_object(scene, hit, to_light, &obj_hit, &obj_normal, &obj_surface)) {
+        if (!trace_ray_object(scene, vector_add(hit, vector_scale(normal, 0.0001)), to_light, &obj_hit, &obj_normal, &obj_surface)) {
             float diffuse_scalar = fmaxf(0.0, vector_dot(to_light, normal)) / light_distance_2;
             diffuse_sum = color_add(diffuse_sum, color_scale(color_mult(scene->lights[i].color, surface->color), diffuse_scalar));
         }
@@ -124,18 +122,19 @@ static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direct
 static color_t get_reflection_color(scene_t* scene, vector_t hit, vector_t normal, vector_t incoming, surface_t* surface, int depth)
 {
     vector_t reflected = vector_add(incoming, vector_scale(normal, -2 * vector_dot(incoming, normal)));
-    return color_scale(trace_ray(scene, hit, reflected, NULL, depth - 1), surface->reflectance);
+    return color_scale(trace_ray(scene, vector_add(hit, vector_scale(normal, 0.0001)), reflected, NULL, depth - 1), surface->reflectance);
 }
 
 static color_t get_transparent_color(scene_t* scene, vector_t hit, vector_t normal, vector_t incoming, surface_t* surface, int depth)
 {
     vector_t next_hit;
-    color_t raw_color = trace_ray(scene, hit, incoming, &next_hit, depth - 1);
     if (vector_dot(normal, incoming) < 0.0) {
+        color_t raw_color = trace_ray(scene, vector_add(hit, vector_scale(normal, -0.0001)), incoming, &next_hit, depth - 1);
         color_t absorbance = color_exp(2.0, color_scale(surface->absorbance, -vector_distance(hit, next_hit)));
         return color_mult(raw_color, absorbance);
+    } else {
+        return trace_ray(scene, vector_add(hit, vector_scale(normal, 0.0001)), incoming, &next_hit, depth - 1);
     }
-    return raw_color;
 }
 
 static color_t trace_ray(scene_t* scene, vector_t ray_start, vector_t ray_direction, vector_t* hit, int depth)
