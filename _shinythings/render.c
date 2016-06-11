@@ -125,15 +125,22 @@ static color_t get_reflection_color(scene_t* scene, vector_t hit, vector_t norma
     return color_scale(trace_ray(scene, vector_add(hit, vector_scale(normal, 0.0001)), reflected, NULL, depth - 1), surface->reflectance);
 }
 
+static vector_t apply_refraction(float n, vector_t normal, vector_t incoming)
+{
+    float c1 = -vector_dot(normal, incoming);
+    float c2 = sqrtf(1 - n * n * (1 - c1 * c1));
+    return vector_add(vector_scale(incoming, n), vector_scale(normal, n * c1 - c2));
+}
+
 static color_t get_transparent_color(scene_t* scene, vector_t hit, vector_t normal, vector_t incoming, surface_t* surface, int depth)
 {
     vector_t next_hit;
     if (vector_dot(normal, incoming) < 0.0) {
-        color_t raw_color = trace_ray(scene, vector_add(hit, vector_scale(normal, -0.0001)), incoming, &next_hit, depth - 1);
+        color_t raw_color = trace_ray(scene, vector_add(hit, vector_scale(normal, -0.0001)), apply_refraction(1.0 / surface->refractive_index, normal, incoming), &next_hit, depth - 1);
         color_t absorbance = color_exp(2.0, color_scale(surface->absorbance, -vector_distance(hit, next_hit)));
         return color_mult(raw_color, absorbance);
     } else {
-        return trace_ray(scene, vector_add(hit, vector_scale(normal, 0.0001)), incoming, &next_hit, depth - 1);
+        return trace_ray(scene, vector_add(hit, vector_scale(normal, 0.0001)), apply_refraction(surface->refractive_index, vector_scale(normal, -1.0), incoming), &next_hit, depth - 1);
     }
 }
 

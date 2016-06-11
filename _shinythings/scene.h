@@ -9,6 +9,7 @@ typedef struct {
     float specular, shininess, reflectance;
     bool transparent;
     color_t absorbance;
+    float refractive_index;
 } surface_t;
 
 typedef struct {
