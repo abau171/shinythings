@@ -10,6 +10,10 @@
 
 #include "render.h"
 
+static float randf(void) {
+    return (float) rand() / RAND_MAX;
+}
+
 static bool model_intersect(tri_model_t* model, vector_t ray_start, vector_t ray_direction, vector_t* hit, vector_t* normal)
 {
     float t = box_intersects(model->kd_tree->bbox, ray_start, ray_direction);
@@ -31,6 +35,8 @@ static bool trace_ray_object(scene_t* scene, vector_t ray_start, vector_t ray_di
             if (closest_distance_2 < 0.0 || distance_2 < closest_distance_2) {
                 closest_hit = sphere_hit;
                 closest_normal = vector_normalize(vector_sub(sphere_hit, scene->spheres[i].sphere.center));
+                if (vector_dot(closest_normal, ray_direction) > 0.0)
+                    closest_normal = vector_scale(closest_normal, -1.0);
                 closest_surface = &scene->spheres[i].surface;
                 closest_distance_2 = distance_2;
             }
@@ -179,9 +185,13 @@ static color_t get_screen_color(scene_t* scene, float x, float y)
 
 static color_t get_pixel(scene_t* scene, int width, int height, int px, int py)
 {
-    float x = (px + 0.5) / width - 0.5;
-    float y = (py + 0.5) / height - 0.5;
-    return color_clamp(get_screen_color(scene, x, y));
+    color_t result_color = {0.0, 0.0, 0.0};
+    for (int i = 0; i < 10; i++) {
+        float x = (px + randf()) / width - 0.5;
+        float y = (py + randf()) / height - 0.5;
+        result_color = color_add(result_color, color_clamp(get_screen_color(scene, x, y)));
+    }
+    return color_scale(result_color, 1.0 / 10.0);
 }
 
 uint8_t* render(scene_t* scene, int width, int height)
