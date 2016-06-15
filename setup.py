@@ -9,6 +9,7 @@ module = Extension("_shinythings",
                             "_shinythings/py_parse.c",
                             "_shinythings/kd_tree.c",
                             "_shinythings/scene.c",
+                            "_shinythings/matrix.c",
                             "_shinythings/geometry.c"],
                    include_dirs=[numpy.get_include(), "_shinythings/"],
                    extra_compile_args=["-O3"])

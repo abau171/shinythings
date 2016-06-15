@@ -5,6 +5,8 @@
 #include "scene.h"
 #include "kd_tree.h"
 
+#include "py_parse.h"
+
 bool parse_vector(PyObject* py_vector, vector_t* v)
 {
     if (!PyArg_ParseTuple(py_vector, "fff", &v->x, &v->y, &v->z))
