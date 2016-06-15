@@ -4,6 +4,8 @@
 #include "color.h"
 #include "scene.h"
 #include "kd_tree.h"
+#include "matrix.h"
+#include "_shinythings_Matrix.h"
 
 #include "py_parse.h"
 
@@ -127,15 +129,18 @@ bool parse_tri_model(PyObject* py_tri_model, tri_model_t* tm)
     PyObject* py_vertices;
     PyObject* py_triangles;
     PyObject* py_surface;
-    if (!PyArg_ParseTuple(py_tri_model, "OOO", &py_vertices, &py_triangles, &py_surface))
+    _shinythings_MatrixObject* py_matrix;
+    if (!PyArg_ParseTuple(py_tri_model, "OOOO", &py_vertices, &py_triangles, &py_surface, &py_matrix))
         return false;
 
     int num_vertices = PyList_Size(py_vertices);
     tm->num_vertices = num_vertices;
     vector_t* vertices = malloc(num_vertices * sizeof(vector_t));
+    vector_t raw_vertex;
     for (int i = 0; i < num_vertices; i++) {
-        if (!parse_vector(PyList_GetItem(py_vertices, i), &vertices[i]))
+        if (!parse_vector(PyList_GetItem(py_vertices, i), &raw_vertex))
             return false;
+        vertices[i] = matrix_apply(&py_matrix->matrix, raw_vertex);
     }
     tm->vertices = vertices;
 

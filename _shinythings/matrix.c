@@ -32,7 +32,7 @@ matrix_t matrix_translate(const matrix_t* m, vector_t translation)
         {{1.0, 0.0, 0.0, translation.x},
          {0.0, 1.0, 0.0, translation.y},
          {0.0, 0.0, 1.0, translation.z}}};
-    return matrix_mult(m, &translate_matrix);
+    return matrix_mult(&translate_matrix, m);
 }
 
 matrix_t matrix_scale(const matrix_t* m, float scalar)
@@ -41,7 +41,7 @@ matrix_t matrix_scale(const matrix_t* m, float scalar)
         {{scalar, 0.0, 0.0, 0.0},
          {0.0, scalar, 0.0, 0.0},
          {0.0, 0.0, scalar, 0.0}}};
-    return matrix_mult(m, &scale_matrix);
+    return matrix_mult(&scale_matrix, m);
 }
 
 matrix_t matrix_rotate_x(const matrix_t* m, float radians)
@@ -50,7 +50,7 @@ matrix_t matrix_rotate_x(const matrix_t* m, float radians)
         {{1.0, 0.0, 0.0, 0.0},
          {0.0, cos(radians), -sin(radians), 0.0},
          {0.0, sin(radians), cos(radians), 0.0}}};
-    return matrix_mult(m, &rotate_matrix);
+    return matrix_mult(&rotate_matrix, m);
 }
 
 matrix_t matrix_rotate_y(const matrix_t* m, float radians)
@@ -59,7 +59,7 @@ matrix_t matrix_rotate_y(const matrix_t* m, float radians)
         {{cos(radians), 0.0, sin(radians), 0.0},
          {0.0, 1.0, 0.0, 0.0},
          {-sin(radians), 0.0, cos(radians), 0.0}}};
-    return matrix_mult(m, &rotate_matrix);
+    return matrix_mult(&rotate_matrix, m);
 }
 
 matrix_t matrix_rotate_z(const matrix_t* m, float radians)
@@ -68,7 +68,7 @@ matrix_t matrix_rotate_z(const matrix_t* m, float radians)
         {{cos(radians), -sin(radians), 0.0, 0.0},
          {sin(radians), cos(radians), 0.0, 0.0},
          {0.0, 0.0, 1.0, 0.0}}};
-    return matrix_mult(m, &rotate_matrix);
+    return matrix_mult(&rotate_matrix, m);
 }
 
 vector_t matrix_apply(const matrix_t* m, vector_t v)
