@@ -15,5 +15,11 @@ module = Extension("_shinythings",
                    include_dirs=[numpy.get_include(), "_shinythings/"],
                    extra_compile_args=["-O3"])
 
-setup(name="shinythings", packages=["shinythings"], ext_modules=[module])
+setup(
+    name="shinythings",
+    description="Simple ray tracer supporting Phong shading, Wavefront .obj file loading, among other features",
+    author="Andrew Bauer",
+    packages=["shinythings"],
+    license="MIT",
+    ext_modules=[module])
 

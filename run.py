@@ -45,6 +45,6 @@ m.translate(0.6, 0, -0.8)
 scene.add_model(*shinythings.obj.parse_obj("objects/bunny.obj"), ((0.7, 0, 1), 0.001, 1, 0, False, (1, 1, 1), 1), m)
 
 image = scene.render(1920//2, 1080//2)
-image.show()
 image.save(time.strftime("%Y-%m-%d_%H-%M-%S") + ".png", "png")
+image.show()
 
